@@ -5,14 +5,13 @@ const CanvasWrapper = styled.div`
   position: relative;
 `;
 const Canvas = styled.canvas`
-  //
   position: absolute;
   border: 1px solid red;
   cursor: crosshair;
   // background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAAA3NCSVQICAjb4U/gAAAABlBMVEXMzMz////TjRV2AAAACXBIWXMAAArrAAAK6wGCiw1aAAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3MgQ1M26LyyjAAAABFJREFUCJlj+M/AgBVhF/0PAH6/D/HkDxOGAAAAAElFTkSuQmCC');
 `;
 
-const PADDING = 64;
+const PADDING = 128;
 const IMG = './Lenna.png';
 const Cropper: React.FC<any> = () => {
   const canvasImageRef = React.useRef<HTMLCanvasElement | null>(null);
@@ -62,19 +61,34 @@ const Cropper: React.FC<any> = () => {
     pos.endX = e.nativeEvent.offsetX;
     pos.endY = e.nativeEvent.offsetY;
 
-    if (pos.startX >= maxX || pos.startY >= maxY) {
+    if (pos.startX >= maxX) {
+      console.log('1');
       const targetStartX = Math.min(pos.startX, maxX);
       const targetStartY = Math.min(pos.startY, maxY);
       const targetEndX = pos.endX - pos.startX;
       const targetEndY = pos.endY - pos.startY;
-      console.log(targetStartX, targetStartY, targetEndX, targetEndY);
       context.fillRect(
         targetStartX,
         targetStartY,
         Math.max(targetEndX, size.width * -1),
         Math.max(targetEndY, size.height * -1)
       );
-    } else if (pos.startX <= minX || pos.startY <= minY) {
+    } else if (pos.startY >= maxY) {
+      console.log('2');
+
+      const targetStartX = Math.min(pos.startX, maxX);
+      const targetStartY = Math.min(pos.startY, maxY);
+      const targetEndX = pos.endX - pos.startX;
+      const targetEndY = pos.endY - pos.startY;
+      context.fillRect(
+        targetStartX,
+        targetStartY,
+        Math.max(targetEndX, size.width * -1),
+        Math.max(targetEndY, size.height * -1)
+      );
+    } else if (pos.startX <= minX) {
+      console.log('3');
+
       const targetStartX = Math.max(pos.startX, minX);
       const targetStartY = Math.max(pos.startY, minY);
       const targetEndX = pos.endX - pos.startX;
@@ -83,23 +97,51 @@ const Cropper: React.FC<any> = () => {
         targetStartX,
         targetStartY,
         Math.min(targetEndX, size.width),
+        Math.min(targetEndY, size.height - targetStartY + PADDING)
+      );
+    } else if (pos.startY <= minY) {
+      console.log('4');
+
+      const targetStartX = Math.max(pos.startX, minX);
+      const targetStartY = Math.max(pos.startY, minY);
+      const targetEndX = pos.endX - pos.startX;
+      const targetEndY = pos.endY - pos.startY;
+      context.fillRect(
+        targetStartX,
+        targetStartY,
+        Math.min(targetEndX, size.width - targetStartX + PADDING),
         Math.min(targetEndY, size.height)
       );
     } else {
+      console.log('5');
+      const targetStartX = Math.max(pos.startX, minX);
+      const targetStartY = Math.max(pos.startY, minY);
       const targetEndX = pos.endX - pos.startX;
       const targetEndY = pos.endY - pos.startY;
-      console.log(
-        Math.max(pos.startX, minX),
-        Math.max(pos.startY, minY),
-        Math.min(targetEndX, size.width - pos.startX + PADDING),
-        Math.min(targetEndY, size.height - pos.startY + PADDING)
-      );
-      context.fillRect(
-        Math.max(pos.startX, minX),
-        Math.max(pos.startY, minY),
-        Math.min(targetEndX, size.width - pos.startX + PADDING),
-        Math.min(targetEndY, size.height - pos.startY + PADDING)
-      );
+
+      console.log(targetStartX, targetStartY, targetEndX, targetEndY);
+      // if (targetEndX < 0 || targetStartX < 0) {
+      //   context.fillRect(
+      //     Math.max(pos.startX, minX),
+      //     Math.max(pos.startY, minY),
+      //     Math.max(targetEndX, targetStartX * -1 + PADDING),
+      //     Math.max(targetEndY, targetStartY * -1 + PADDING)
+      //   );
+      // } else if (targetEndY < 0 || targetStartY < 0) {
+      //   context.fillRect(
+      //     Math.max(pos.startX, minX),
+      //     Math.max(pos.startY, minY),
+      //     Math.min(targetEndX, size.width - pos.startX + PADDING),
+      //     Math.max(targetEndY, targetStartY * -1 + PADDING)
+      //   );
+      // } else {
+      //   context.fillRect(
+      //     Math.max(pos.startX, minX),
+      //     Math.max(pos.startY, minY),
+      //     Math.min(targetEndX, size.width - pos.startX + PADDING),
+      //     Math.min(targetEndY, size.height - pos.startY + PADDING)
+      //   );
+      // }
     }
   };
 
