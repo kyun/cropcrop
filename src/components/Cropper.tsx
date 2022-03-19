@@ -39,6 +39,8 @@ const Cropper: React.FC<any> = () => {
     if (!canvasRef.current) return;
     const context = canvasRef.current.getContext('2d');
     if (!context) return;
+
+    console.log(pos);
     pos.isActive = false;
     pos.endX = 0;
     pos.endY = 0;
@@ -60,89 +62,176 @@ const Cropper: React.FC<any> = () => {
     context.fillStyle = 'rgba(255,0,0,0.48)';
     pos.endX = e.nativeEvent.offsetX;
     pos.endY = e.nativeEvent.offsetY;
+    const { startX, startY, endX, endY } = pos;
 
-    if (pos.startX >= maxX) {
+    if (startX >= endX && startY >= endY) {
+      //
       console.log('1');
-      const targetStartX = Math.min(pos.startX, maxX);
-      const targetStartY = Math.min(pos.startY, maxY);
-      const targetEndX = pos.endX - pos.startX;
-      const targetEndY = pos.endY - pos.startY;
-      context.fillRect(
-        targetStartX,
-        targetStartY,
-        Math.max(targetEndX, size.width * -1),
-        Math.max(targetEndY, size.height * -1)
-      );
-    } else if (pos.startY >= maxY) {
+
+      if (startX > maxX && startY > maxY) {
+        //
+        context.fillRect(
+          Math.min(startX, size.width + PADDING),
+          Math.min(startY, size.height + PADDING),
+          Math.max((startX - endX) * -1, size.width * -1),
+          Math.max((startY - endY) * -1, size.height * -1)
+        );
+      } else if (startX > maxX && startY <= maxY) {
+        context.fillRect(
+          Math.min(startX, size.width + PADDING),
+          startY,
+          Math.max((startX - endX) * -1, size.width * -1),
+          Math.max((startY - PADDING) * -1, endY - startY)
+        );
+      } else if (startX <= maxX && startY > maxY) {
+        context.fillRect(
+          startX,
+          Math.min(startY, size.height + PADDING),
+          Math.max((startX - PADDING) * -1, endX - startX),
+          Math.max((startY - endY) * -1, size.height * -1)
+        );
+      } else if (startX <= maxX && startY <= maxY) {
+        context.fillRect(
+          startX,
+          startY,
+          Math.max((startX - PADDING) * -1, endX - startX),
+          Math.max((startY - PADDING) * -1, endY - startY)
+        );
+      }
+    } else if (startX >= endX && startY < endY) {
+      //
       console.log('2');
+      if (startX > maxX && startY > maxY) {
+        //
+        console.log('a');
+        context.fillRect(
+          Math.min(startX, size.width + PADDING),
+          Math.min(startY, size.height + PADDING),
+          Math.max((startX - endX) * -1, size.width * -1),
+          Math.max((startY - endY) * -1, size.height * -1)
+        );
+      } else if (startX > maxX && startY <= maxY) {
+        console.log('b');
+        const targetY = Math.max(startY, PADDING);
+        context.fillRect(
+          Math.min(startX, size.width + PADDING),
+          targetY,
+          Math.max((startX - endX) * -1, size.width * -1),
+          Math.max((startY - PADDING) * -1, endY - startY)
+        );
+      } else if (startX <= maxX && startY > maxY) {
+        console.log('c');
 
-      const targetStartX = Math.min(pos.startX, maxX);
-      const targetStartY = Math.min(pos.startY, maxY);
-      const targetEndX = pos.endX - pos.startX;
-      const targetEndY = pos.endY - pos.startY;
-      context.fillRect(
-        targetStartX,
-        targetStartY,
-        Math.max(targetEndX, size.width * -1),
-        Math.max(targetEndY, size.height * -1)
-      );
-    } else if (pos.startX <= minX) {
+        context.fillRect(
+          startX,
+          Math.min(startY, size.height + PADDING),
+          Math.max((startX - PADDING) * -1, endX - startX),
+          Math.max((startY - endY) * -1, size.height * -1)
+        );
+      } else if (startX <= maxX && startY <= maxY) {
+        console.log('d');
+        const targetY = Math.max(startY, PADDING);
+        console.log(endY - targetY, maxY);
+        context.fillRect(
+          startX,
+          targetY,
+          Math.max((startX - PADDING) * -1, endX - startX),
+          Math.min(endY - targetY, size.height)
+        );
+      }
+    } else if (startX < endX && startY >= endY) {
+      //
       console.log('3');
-
-      const targetStartX = Math.max(pos.startX, minX);
-      const targetStartY = Math.max(pos.startY, minY);
-      const targetEndX = pos.endX - pos.startX;
-      const targetEndY = pos.endY - pos.startY;
-      context.fillRect(
-        targetStartX,
-        targetStartY,
-        Math.min(targetEndX, size.width),
-        Math.min(targetEndY, size.height - targetStartY + PADDING)
-      );
-    } else if (pos.startY <= minY) {
+    } else if (startX < endX && startY < endY) {
+      //
       console.log('4');
-
-      const targetStartX = Math.max(pos.startX, minX);
-      const targetStartY = Math.max(pos.startY, minY);
-      const targetEndX = pos.endX - pos.startX;
-      const targetEndY = pos.endY - pos.startY;
-      context.fillRect(
-        targetStartX,
-        targetStartY,
-        Math.min(targetEndX, size.width - targetStartX + PADDING),
-        Math.min(targetEndY, size.height)
-      );
     } else {
-      console.log('5');
-      const targetStartX = Math.max(pos.startX, minX);
-      const targetStartY = Math.max(pos.startY, minY);
-      const targetEndX = pos.endX - pos.startX;
-      const targetEndY = pos.endY - pos.startY;
-
-      console.log(targetStartX, targetStartY, targetEndX, targetEndY);
-      // if (targetEndX < 0 || targetStartX < 0) {
-      //   context.fillRect(
-      //     Math.max(pos.startX, minX),
-      //     Math.max(pos.startY, minY),
-      //     Math.max(targetEndX, targetStartX * -1 + PADDING),
-      //     Math.max(targetEndY, targetStartY * -1 + PADDING)
-      //   );
-      // } else if (targetEndY < 0 || targetStartY < 0) {
-      //   context.fillRect(
-      //     Math.max(pos.startX, minX),
-      //     Math.max(pos.startY, minY),
-      //     Math.min(targetEndX, size.width - pos.startX + PADDING),
-      //     Math.max(targetEndY, targetStartY * -1 + PADDING)
-      //   );
-      // } else {
-      //   context.fillRect(
-      //     Math.max(pos.startX, minX),
-      //     Math.max(pos.startY, minY),
-      //     Math.min(targetEndX, size.width - pos.startX + PADDING),
-      //     Math.min(targetEndY, size.height - pos.startY + PADDING)
-      //   );
-      // }
+      console.log('Expe');
+      console.log(pos);
     }
+
+    // if (pos.startX >= maxX) {
+    //   console.log('1');
+    //   const targetStartX = Math.min(pos.startX, maxX);
+    //   const targetStartY = Math.min(pos.startY, maxY);
+    //   const targetEndX = pos.endX - pos.startX;
+    //   const targetEndY = pos.endY - pos.startY;
+    //   context.fillRect(
+    //     targetStartX,
+    //     targetStartY,
+    //     Math.max(targetEndX, size.width * -1),
+    //     Math.max(targetEndY, size.height * -1)
+    //   );
+    // } else if (pos.startY >= maxY) {
+    //   console.log('2');
+
+    //   const targetStartX = Math.min(pos.startX, maxX);
+    //   const targetStartY = Math.min(pos.startY, maxY);
+    //   const targetEndX = pos.endX - pos.startX;
+    //   const targetEndY = pos.endY - pos.startY;
+    //   context.fillRect(
+    //     targetStartX,
+    //     targetStartY,
+    //     Math.max(targetEndX, size.width * -1),
+    //     Math.max(targetEndY, size.height * -1)
+    //   );
+    // } else if (pos.startX <= minX) {
+    //   console.log('3');
+
+    //   const targetStartX = Math.max(pos.startX, minX);
+    //   const targetStartY = Math.max(pos.startY, minY);
+    //   const targetEndX = pos.endX - pos.startX;
+    //   const targetEndY = pos.endY - pos.startY;
+    //   context.fillRect(
+    //     targetStartX,
+    //     targetStartY,
+    //     Math.min(targetEndX, size.width),
+    //     Math.min(targetEndY, size.height - targetStartY + PADDING)
+    //   );
+    // } else if (pos.startY <= minY) {
+    //   console.log('4');
+
+    //   const targetStartX = Math.max(pos.startX, minX);
+    //   const targetStartY = Math.max(pos.startY, minY);
+    //   const targetEndX = pos.endX - pos.startX;
+    //   const targetEndY = pos.endY - pos.startY;
+    //   context.fillRect(
+    //     targetStartX,
+    //     targetStartY,
+    //     Math.min(targetEndX, size.width - targetStartX + PADDING),
+    //     Math.min(targetEndY, size.height)
+    //   );
+    // } else {
+    //   console.log('5');
+    //   const targetStartX = Math.max(pos.startX, minX);
+    //   const targetStartY = Math.max(pos.startY, minY);
+    //   const targetEndX = pos.endX - pos.startX;
+    //   const targetEndY = pos.endY - pos.startY;
+
+    //   console.log(targetStartX, targetStartY, targetEndX, targetEndY);
+    //   // if (targetEndX < 0 || targetStartX < 0) {
+    //   //   context.fillRect(
+    //   //     Math.max(pos.startX, minX),
+    //   //     Math.max(pos.startY, minY),
+    //   //     Math.max(targetEndX, targetStartX * -1 + PADDING),
+    //   //     Math.max(targetEndY, targetStartY * -1 + PADDING)
+    //   //   );
+    //   // } else if (targetEndY < 0 || targetStartY < 0) {
+    //   //   context.fillRect(
+    //   //     Math.max(pos.startX, minX),
+    //   //     Math.max(pos.startY, minY),
+    //   //     Math.min(targetEndX, size.width - pos.startX + PADDING),
+    //   //     Math.max(targetEndY, targetStartY * -1 + PADDING)
+    //   //   );
+    //   // } else {
+    //   //   context.fillRect(
+    //   //     Math.max(pos.startX, minX),
+    //   //     Math.max(pos.startY, minY),
+    //   //     Math.min(targetEndX, size.width - pos.startX + PADDING),
+    //   //     Math.min(targetEndY, size.height - pos.startY + PADDING)
+    //   //   );
+    //   // }
+    // }
   };
 
   const handleMouseLeave = (e: any) => {
