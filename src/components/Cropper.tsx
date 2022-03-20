@@ -159,7 +159,7 @@ const Cropper: React.FC<any> = () => {
     const maxY = size.height + PADDING;
     pos.endX = e.nativeEvent.offsetX;
     pos.endY = e.nativeEvent.offsetY;
-    pos.isActive = false;
+    // pos.isActive = false;
 
     const { startX, startY, endX, endY } = pos;
     const width = endX - startX;
