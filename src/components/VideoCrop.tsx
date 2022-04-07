@@ -8,18 +8,21 @@ const CanvasWrapper = styled.div<{ width?: number; height?: number }>`
   }}
 `;
 const Canvas = styled.canvas`
+  left: 0;
   position: absolute;
   border: 1px solid red;
   cursor: crosshair;
   background: rgba(0, 0, 0, 0.5);
   // background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAAA3NCSVQICAjb4U/gAAAABlBMVEXMzMz////TjRV2AAAACXBIWXMAAArrAAAK6wGCiw1aAAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3MgQ1M26LyyjAAAABFJREFUCJlj+M/AgBVhF/0PAH6/D/HkDxOGAAAAAElFTkSuQmCC');
 `;
-const PADDING = 128;
+const PADDING = 0;
 
 const VideoCrop: React.FC<any> = () => {
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
   const canvasVideoRef = React.useRef<HTMLCanvasElement | null>(null);
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
+  const [size, setSize] = React.useState({ width: 1280, height: 720 });
+
   const mycanvasRef = React.useRef<HTMLCanvasElement>(
     document.createElement('canvas')
   );
@@ -29,10 +32,10 @@ const VideoCrop: React.FC<any> = () => {
     startY: 0,
     endX: 0,
     endY: 0,
-    x: 0,
-    y: 0,
-    w: 0,
-    h: 0,
+    x: 110,
+    y: 110,
+    w: 110,
+    h: 110,
   };
   const handleMouseDown = (e: any) => {
     //
@@ -42,6 +45,7 @@ const VideoCrop: React.FC<any> = () => {
     pos.isActive = true;
     pos.startX = e.nativeEvent.offsetX;
     pos.startY = e.nativeEvent.offsetY;
+    context.clearRect(0, 0, size.width, size.height);
   };
   const handleMouseUp = (e: any) => {
     //
@@ -62,7 +66,7 @@ const VideoCrop: React.FC<any> = () => {
     mycanvas.width = Math.abs(w);
     mycanvas.height = Math.abs(h);
     mycontext?.drawImage(
-      videoRef.current as HTMLVideoElement,
+      videoRef.current as any,
       x - PADDING,
       y - PADDING,
       w,
@@ -72,8 +76,8 @@ const VideoCrop: React.FC<any> = () => {
       Math.abs(w),
       Math.abs(h)
     );
-    // const url = mycanvasRef.current.toDataURL('image/png', 1.0);
-    // setUrl(url);
+    document.body.append(mycanvas);
+    handleRect();
   };
   const handleMouseMove = (e: any) => {
     //
@@ -84,9 +88,9 @@ const VideoCrop: React.FC<any> = () => {
     if (!context) return;
     const minX = PADDING;
     const minY = PADDING;
-    const maxX = 1280 + PADDING;
-    const maxY = 720 + PADDING;
-    context.clearRect(0, 0, 512, 512);
+    const maxX = size.width + PADDING;
+    const maxY = size.height + PADDING;
+    context.clearRect(0, 0, size.width, size.height);
     context.fillStyle = 'rgba(255,0,0,0.48)';
     pos.endX = e.nativeEvent.offsetX;
     pos.endY = e.nativeEvent.offsetY;
@@ -131,7 +135,7 @@ const VideoCrop: React.FC<any> = () => {
     pos.w = w;
     pos.h = h;
     context.drawImage(
-      videoRef.current as HTMLVideoElement,
+      videoRef.current as any,
       x - PADDING,
       y - PADDING,
       w,
@@ -148,11 +152,11 @@ const VideoCrop: React.FC<any> = () => {
     if (!canvasRef.current) return;
     const context = canvasRef.current.getContext('2d');
     if (!context) return;
-    context.clearRect(0, 0, 512, 512);
+    context.clearRect(0, 0, size.width, size.height);
     const minX = PADDING;
     const minY = PADDING;
-    const maxX = 1280 + PADDING;
-    const maxY = 720 + PADDING;
+    const maxX = size.width + PADDING;
+    const maxY = size.height + PADDING;
     pos.endX = e.nativeEvent.offsetX;
     pos.endY = e.nativeEvent.offsetY;
     // pos.isActive = false;
@@ -194,7 +198,7 @@ const VideoCrop: React.FC<any> = () => {
     context.strokeStyle = '#feca00';
     context.strokeRect(x, y, w, h);
     context.drawImage(
-      videoRef.current as HTMLVideoElement,
+      videoRef.current as any,
       x - PADDING,
       y - PADDING,
       w,
@@ -214,14 +218,48 @@ const VideoCrop: React.FC<any> = () => {
     video.play();
     videoRef.current = video;
   };
+
+  const handleRect = () => {
+    const canvas2 = canvasRef.current;
+    if (!canvas2) return;
+    const context2 = canvas2.getContext('2d');
+    if (!context2) return;
+    const { x, y, w, h } = pos;
+
+    const draw = () => {
+      context2.drawImage(
+        videoRef.current as HTMLVideoElement,
+        x - PADDING,
+        y - PADDING,
+        w,
+        h,
+        x,
+        y,
+        w,
+        h
+      );
+      // context2.drawImage(videoRef.current as HTMLVideoElement, 0, 0);
+
+      requestAnimationFrame(draw);
+    };
+    draw();
+  };
+
   const handleCanvas = () => {
     const canvas = canvasVideoRef.current;
     if (!canvas) return;
     const context = canvas.getContext('2d');
     if (!context) return;
 
+    const canvas2 = canvasRef.current;
+    if (!canvas2) return;
+    const context2 = canvas2.getContext('2d');
+    if (!context2) return;
+
     const draw = () => {
       context.drawImage(videoRef.current as HTMLVideoElement, 0, 0);
+      // context2.drawImage(videoRef.current as HTMLVideoElement, 0, 0);
+
       requestAnimationFrame(draw);
     };
     draw();
@@ -230,6 +268,7 @@ const VideoCrop: React.FC<any> = () => {
     loadVideo();
     // videoRef.current?.play();
     handleCanvas();
+    // handleRect();
   }, []);
   return (
     <div>
