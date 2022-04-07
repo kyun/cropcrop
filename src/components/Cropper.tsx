@@ -101,32 +101,16 @@ const Cropper: React.FC<any> = () => {
       y = 0,
       w = 0,
       h = 0;
-    if (startX > endX && startY > endY) {
-      // 우에서 좌 && 아래서 위
-      x = Math.min(startX, maxX);
-      y = Math.min(startY, maxY);
-      w = Math.max(width, (x - minX) * -1);
-      h = Math.max(height, (y - minY) * -1);
-      // ex 115 330 13 -160
-    } else if (startX > endX && startY <= endY) {
-      // 우에서 좌 && 위에서 아래
-      x = Math.min(startX, maxX);
-      y = Math.max(startY, minY);
-      w = Math.max(width, (x - minX) * -1);
-      h = Math.min(height, (y - maxY) * -1);
-    } else if (startX <= endX && startY > endY) {
-      // 좌에서 우 && 아래서 위
-      x = Math.max(startX, minX);
-      y = Math.min(startY, maxY);
-      w = Math.min(width, (x - maxX) * -1);
-      h = Math.max(height, (y - minY) * -1);
-    } else if (startX <= endX && startY <= endY) {
-      // 좌에서 우 && 아래서 위
-      x = Math.max(startX, minX);
-      y = Math.max(startY, minY);
-      w = Math.min(width, (x - maxX) * -1);
-      h = Math.min(height, (y - maxY) * -1);
-    }
+    x = startX > endX ? Math.min(startX, maxX) : Math.max(startX, minX);
+    y = startY > endY ? Math.min(startY, maxY) : Math.max(startY, minY);
+    w =
+      startX > endX
+        ? Math.max(width, (x - minX) * -1)
+        : Math.min(width, (x - maxX) * -1);
+    h =
+      startY > endY
+        ? Math.max(height, (y - minY) * -1)
+        : Math.min(height, (y - maxY) * -1);
     // context.fillRect(x, y, w, h);
     context.strokeStyle = '#feca00';
     context.strokeRect(x, y, w, h);
@@ -168,32 +152,16 @@ const Cropper: React.FC<any> = () => {
       y = 0,
       w = 0,
       h = 0;
-    if (startX > endX && startY > endY) {
-      // 우에서 좌 && 아래서 위
-      x = Math.min(startX, maxX);
-      y = Math.min(startY, maxY);
-      w = Math.max(width, (x - minX) * -1);
-      h = Math.max(height, (y - minY) * -1);
-      // ex 115 330 13 -160
-    } else if (startX > endX && startY <= endY) {
-      // 우에서 좌 && 위에서 아래
-      x = Math.min(startX, maxX);
-      y = Math.max(startY, minY);
-      w = Math.max(width, (x - minX) * -1);
-      h = Math.min(height, (y - maxY) * -1);
-    } else if (startX <= endX && startY > endY) {
-      // 좌에서 우 && 아래서 위
-      x = Math.max(startX, minX);
-      y = Math.min(startY, maxY);
-      w = Math.min(width, (x - maxX) * -1);
-      h = Math.max(height, (y - minY) * -1);
-    } else if (startX <= endX && startY <= endY) {
-      // 좌에서 우 && 아래서 위
-      x = Math.max(startX, minX);
-      y = Math.max(startY, minY);
-      w = Math.min(width, (x - maxX) * -1);
-      h = Math.min(height, (y - maxY) * -1);
-    }
+    x = startX > endX ? Math.min(startX, maxX) : Math.max(startX, minX);
+    y = startY > endY ? Math.min(startY, maxY) : Math.max(startY, minY);
+    w =
+      startX > endX
+        ? Math.max(width, (x - minX) * -1)
+        : Math.min(width, (x - maxX) * -1);
+    h =
+      startY > endY
+        ? Math.max(height, (y - minY) * -1)
+        : Math.min(height, (y - maxY) * -1);
     // context.fillRect(x, y, w, h);
     context.strokeStyle = '#feca00';
     context.strokeRect(x, y, w, h);

@@ -21,11 +21,22 @@ const VideoCrop: React.FC<any> = () => {
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
   const canvasVideoRef = React.useRef<HTMLCanvasElement | null>(null);
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
+  const outputVideoRef = React.useRef<HTMLVideoElement>(
+    document.createElement('video')
+  );
+  const cropedAnimationId = React.useRef<number>(-1);
+  const outputAnimationId = React.useRef<number>(-1);
   const [size, setSize] = React.useState({ width: 1280, height: 720 });
 
   const mycanvasRef = React.useRef<HTMLCanvasElement>(
     document.createElement('canvas')
   );
+
+  React.useEffect(() => {
+    outputVideoRef.current.autoplay = true;
+    outputVideoRef.current.muted = true;
+    outputVideoRef.current.play();
+  }, []);
   let pos = {
     isActive: false,
     startX: 0,
@@ -45,6 +56,8 @@ const VideoCrop: React.FC<any> = () => {
     pos.isActive = true;
     pos.startX = e.nativeEvent.offsetX;
     pos.startY = e.nativeEvent.offsetY;
+    cancelAnimationFrame(cropedAnimationId.current);
+    cancelAnimationFrame(outputAnimationId.current);
     context.clearRect(0, 0, size.width, size.height);
   };
   const handleMouseUp = (e: any) => {
@@ -78,6 +91,7 @@ const VideoCrop: React.FC<any> = () => {
     );
     document.body.append(mycanvas);
     handleRect();
+    handleRect2();
   };
   const handleMouseMove = (e: any) => {
     //
@@ -225,7 +239,6 @@ const VideoCrop: React.FC<any> = () => {
     const context2 = canvas2.getContext('2d');
     if (!context2) return;
     const { x, y, w, h } = pos;
-
     const draw = () => {
       context2.drawImage(
         videoRef.current as HTMLVideoElement,
@@ -240,11 +253,35 @@ const VideoCrop: React.FC<any> = () => {
       );
       // context2.drawImage(videoRef.current as HTMLVideoElement, 0, 0);
 
-      requestAnimationFrame(draw);
+      cropedAnimationId.current = requestAnimationFrame(draw);
+    };
+    draw();
+    outputVideoRef.current.srcObject = canvas2.captureStream(60);
+  };
+  const handleRect2 = () => {
+    const canvas2 = mycanvasRef.current;
+    if (!canvas2) return;
+    const context2 = canvas2.getContext('2d');
+    if (!context2) return;
+    const { x, y, w, h } = pos;
+    const draw = () => {
+      context2.drawImage(
+        outputVideoRef.current as any,
+        x - PADDING,
+        y - PADDING,
+        w,
+        h,
+        0,
+        0,
+        Math.abs(w),
+        Math.abs(h)
+      );
+      // context2.drawImage(videoRef.current as HTMLVideoElement, 0, 0);
+
+      outputAnimationId.current = requestAnimationFrame(draw);
     };
     draw();
   };
-
   const handleCanvas = () => {
     const canvas = canvasVideoRef.current;
     if (!canvas) return;
