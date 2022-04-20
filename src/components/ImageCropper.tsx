@@ -31,7 +31,7 @@ const ImageCropper: React.FC<Props> = ({
   imageUrl,
 }) => {
   const shadowRef = React.useRef<HTMLCanvasElement>(null);
-  const imageRef = React.useRef<HTMLImageElement>(new Image());
+  const imageRef = React.useRef(new Image());
   const [imageSize, setImageSize] = React.useState({ width: 0, height: 0 });
   const [isImageLoaded, setIsImagedLoaded] = React.useState(false);
 

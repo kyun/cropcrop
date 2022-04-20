@@ -24,7 +24,7 @@ const Cropper: React.FC<any> = () => {
   const mycanvasRef = React.useRef<HTMLCanvasElement>(
     document.createElement('canvas')
   );
-  const imageRef = React.useRef<HTMLImageElement | null>(null);
+  const imageRef = React.useRef<HTMLImageElement>(null);
   const [size, setSize] = React.useState({ width: 0, height: 0 });
   const [url, setUrl] = React.useState('');
   let pos = {

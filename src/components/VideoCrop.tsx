@@ -28,9 +28,7 @@ const VideoCrop: React.FC<any> = () => {
   const outputAnimationId = React.useRef<number>(-1);
   const [size, setSize] = React.useState({ width: 1280, height: 720 });
 
-  const mycanvasRef = React.useRef<HTMLCanvasElement>(
-    document.createElement('canvas')
-  );
+  const mycanvasRef = React.useRef(document.createElement('canvas'));
 
   React.useEffect(() => {
     outputVideoRef.current.autoplay = true;
